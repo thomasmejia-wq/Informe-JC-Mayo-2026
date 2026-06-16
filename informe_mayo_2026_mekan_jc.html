@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Informe de Performance Celia — Mayo 2026 | Mekan</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --orange: #ff7d08;
+  --orange-dark: #e86d00;
+  --orange-light: #fff4eb;
+  --orange-mid: #ffd0a8;
+  --navy: #1f2f45;
+  --navy-mid: #2e4260;
+  --navy-light: #eef1f5;
+  --white: #ffffff;
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-400: #94a3b8;
+  --gray-600: #475569;
+  --gray-800: #1e293b;
+  --green: #059669;
+  --red: #dc2626;
+  --font: 'Inter', -apple-system, sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{font-family:var(--font);background:#f0f2f5;color:var(--navy);line-height:1.5}
+a{color:var(--orange);text-decoration:none}
+
+/* LAYOUT */
+.page{max-width:1100px;margin:0 auto;padding:24px}
+
+/* COVER */
+.cover{background:var(--navy);border-radius:16px;padding:56px 64px;display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;position:relative;overflow:hidden}
+.cover::before{content:'';position:absolute;right:-80px;top:-80px;width:360px;height:360px;border-radius:50%;background:var(--orange);opacity:.08}
+.cover::after{content:'';position:absolute;right:60px;bottom:-120px;width:260px;height:260px;border-radius:50%;background:var(--orange);opacity:.06}
+.cover-left{z-index:1}
+.cover-eyebrow{font-size:.75rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--orange);margin-bottom:10px}
+.cover-title{font-size:2.6rem;font-weight:900;color:#fff;line-height:1.1;margin-bottom:6px}
+.cover-sub{font-size:1.05rem;color:rgba(255,255,255,.6);margin-bottom:28px}
+.cover-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,125,8,.15);border:1px solid rgba(255,125,8,.3);border-radius:8px;padding:8px 16px;color:var(--orange);font-size:.8rem;font-weight:600}
+.cover-dot{width:8px;height:8px;border-radius:50%;background:var(--orange);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.cover-logo-area{text-align:right;z-index:1}
+.logo-mark{width:72px;height:72px;background:var(--orange);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-left:auto;margin-bottom:12px;font-size:1.8rem;font-weight:900;color:#fff}
+.cover-meta{color:rgba(255,255,255,.4);font-size:.75rem;text-align:right;line-height:1.8}
+
+/* SECTION CARD */
+.section{background:#fff;border-radius:14px;padding:32px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.section-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;padding-bottom:20px;border-bottom:2px solid var(--gray-100)}
+.section-title-group{}
+.section-eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);margin-bottom:4px}
+.section-title{font-size:1.3rem;font-weight:800;color:var(--navy)}
+.section-subtitle{font-size:.85rem;color:var(--gray-600);margin-top:3px}
+.section-badge{background:var(--orange-light);color:var(--orange-dark);font-size:.72rem;font-weight:700;padding:4px 12px;border-radius:20px;white-space:nowrap}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:28px}
+.kpi-card{background:var(--gray-50);border-radius:12px;padding:20px 18px;border:1px solid var(--gray-200);position:relative}
+.kpi-card.highlight{background:var(--navy);border-color:var(--navy)}
+.kpi-card.highlight .kpi-label{color:rgba(255,255,255,.55)}
+.kpi-card.highlight .kpi-value{color:#fff}
+.kpi-card.highlight .kpi-delta{background:rgba(255,125,8,.2);color:var(--orange)}
+.kpi-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-400);margin-bottom:8px}
+.kpi-value{font-size:2rem;font-weight:900;color:var(--navy);line-height:1;margin-bottom:8px;font-variant-numeric:tabular-nums}
+.kpi-value .unit{font-size:1rem;font-weight:600;opacity:.6}
+.kpi-delta{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:20px}
+.kpi-delta.up{background:#d1fae5;color:#065f46}
+.kpi-delta.down{background:#fee2e2;color:#991b1b}
+.kpi-delta.neutral{background:var(--gray-100);color:var(--gray-600)}
+.kpi-context{font-size:.7rem;color:var(--gray-400);margin-top:6px}
+
+/* INSIGHTS BOX */
+.insights-box{background:var(--orange-light);border-left:4px solid var(--orange);border-radius:0 10px 10px 0;padding:20px 24px;margin-bottom:0}
+.insights-title{font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange-dark);margin-bottom:14px}
+.insights-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.insight-item{display:flex;align-items:flex-start;gap:10px;font-size:.82rem;color:var(--navy);line-height:1.4}
+.insight-icon{width:20px;height:20px;border-radius:50%;background:var(--orange);color:#fff;font-size:.65rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
+/* CHARTS */
+.chart-container{position:relative;width:100%}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.chart-row.three{grid-template-columns:1fr 1fr 1fr}
+.chart-row.wide{grid-template-columns:2fr 1fr}
+.chart-wrap{background:var(--gray-50);border-radius:12px;padding:20px;border:1px solid var(--gray-200)}
+.chart-title{font-size:.8rem;font-weight:700;color:var(--navy);margin-bottom:14px;text-transform:uppercase;letter-spacing:.06em}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+thead tr{background:var(--navy)}
+thead th{padding:10px 14px;text-align:left;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+thead th:first-child{border-radius:8px 0 0 8px}
+thead th:last-child{border-radius:0 8px 8px 0}
+tbody tr{border-bottom:1px solid var(--gray-100);transition:background .15s}
+tbody tr:hover{background:var(--gray-50)}
+tbody td{padding:11px 14px;color:var(--navy);vertical-align:middle}
+.td-bold{font-weight:700}
+.td-muted{color:var(--gray-400);font-size:.75rem}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:20px}
+.tag.cal{background:#d1fae5;color:#065f46}
+.tag.frio{background:#fee2e2;color:#991b1b}
+.tag.orange{background:var(--orange-light);color:var(--orange-dark)}
+.score-bar{height:6px;border-radius:3px;background:var(--gray-200);margin-top:4px;overflow:hidden}
+.score-fill{height:100%;border-radius:3px;background:var(--orange)}
+.pct-bar{height:5px;border-radius:3px;background:var(--gray-200);margin-top:4px;overflow:hidden}
+.pct-fill-cal{height:100%;border-radius:3px;background:#10b981}
+
+/* HEATMAP */
+.heatmap-wrap{overflow-x:auto}
+.heatmap{display:grid;grid-template-columns:80px repeat(24,1fr);gap:2px;min-width:640px}
+.hm-label{font-size:.68rem;font-weight:600;color:var(--gray-600);display:flex;align-items:center;padding-right:8px;justify-content:flex-end}
+.hm-hour-label{font-size:.6rem;color:var(--gray-400);text-align:center;padding-bottom:4px}
+.hm-cell{height:28px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:600;color:rgba(255,255,255,.85)}
+.hm-legend{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:.72rem;color:var(--gray-600)}
+.hm-legend-bar{width:120px;height:10px;border-radius:5px;background:linear-gradient(to right,#e8f4ff,var(--orange))}
+
+/* RECOMENDACIONES */
+.rec-list{display:flex;flex-direction:column;gap:10px}
+.rec-item{display:flex;align-items:center;gap:12px}
+.rec-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.rec-name{font-size:.82rem;font-weight:600;color:var(--navy);width:200px;flex-shrink:0}
+.rec-bar-wrap{flex:1;height:10px;background:var(--gray-200);border-radius:5px;overflow:hidden}
+.rec-bar{height:100%;border-radius:5px}
+.rec-stats{display:flex;gap:16px;font-size:.72rem;font-weight:700;width:180px;justify-content:flex-end;flex-shrink:0}
+.rec-count{color:var(--navy)}
+.rec-pct{color:var(--gray-400)}
+
+/* HORARIO BREAKDOWN */
+.horario-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.horario-card{border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:8px}
+.horario-card.inside{background:var(--navy-light);border:1px solid var(--gray-200)}
+.horario-card.outside{background:var(--orange-light);border:1px solid var(--orange-mid)}
+.horario-pct{font-size:2.8rem;font-weight:900;line-height:1}
+.horario-pct.inside{color:var(--navy)}
+.horario-pct.outside{color:var(--orange-dark)}
+.horario-desc{font-size:.8rem;color:var(--gray-600)}
+.horario-detail{display:flex;gap:16px;margin-top:4px}
+.horario-stat{font-size:.75rem}
+.horario-stat strong{display:block;font-size:1.1rem;font-weight:800}
+
+/* SCORE RANGES */
+.score-range-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.sr-card{border-radius:12px;padding:20px;text-align:center;border:2px solid transparent}
+.sr-card.alto{background:#d1fae5;border-color:#6ee7b7}
+.sr-card.medio{background:#fff7ed;border-color:var(--orange-mid)}
+.sr-card.bajo{background:#fee2e2;border-color:#fca5a5}
+.sr-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.sr-card.alto .sr-label{color:#065f46}
+.sr-card.medio .sr-label{color:#9a3412}
+.sr-card.bajo .sr-label{color:#991b1b}
+.sr-total{font-size:2rem;font-weight:900;color:var(--navy);line-height:1}
+.sr-pct-cal{font-size:.75rem;margin-top:6px;font-weight:600}
+
+/* MODELO TABLE */
+.marca-pill{display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:.68rem;font-weight:700}
+.marca-pill.mazda{background:#dbeafe;color:#1e40af}
+.marca-pill.kia{background:#f0fdf4;color:#166534}
+.marca-pill.ford{background:#fef3c7;color:#92400e}
+
+/* INSIGHTS FINAL */
+.insights-final-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.insight-card{background:var(--gray-50);border-radius:12px;padding:20px;border:1px solid var(--gray-200)}
+.insight-card-icon{width:36px;height:36px;border-radius:10px;background:var(--orange-light);color:var(--orange);display:flex;align-items:center;justify-content:center;font-size:1rem;margin-bottom:12px}
+.insight-card-title{font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:6px}
+.insight-card-text{font-size:.78rem;color:var(--gray-600);line-height:1.5}
+
+/* FOOTER */
+.report-footer{text-align:center;padding:24px;color:var(--gray-400);font-size:.72rem;line-height:1.8}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--gray-200);margin:24px 0}
+
+/* DELTA INDICATOR inline */
+.delta-up{color:#059669;font-weight:700;font-size:.78rem}
+.delta-down{color:#dc2626;font-weight:700;font-size:.78rem}
+.delta-neutral{color:var(--gray-400);font-weight:700;font-size:.78rem}
+
+/* PRINT */
+@media print{
+  body{background:#fff}
+  .section{box-shadow:none;border:1px solid #e2e8f0;break-inside:avoid}
+  .cover{break-after:page}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ══════ PORTADA ══════ -->
+<div class="cover">
+  <div class="cover-left">
+    <div class="cover-eyebrow">Reporte de Performance Celia</div>
+    <div class="cover-title">Mayo 2026</div>
+    <div class="cover-sub">Análisis de leads, calidad y comportamiento comercial</div>
+    <div class="cover-badge">
+      <span class="cover-dot"></span>
+      Análisis generado por Mekan · 5,779 leads procesados
+    </div>
+  </div>
+  <div class="cover-logo-area">
+    <div class="logo-mark">M</div>
+    <div class="cover-meta">
+      Mekan Intelligence<br>
+      Período: Mayo 2026<br>
+      Comparativo: Ene–May 2026
+    </div>
+  </div>
+</div>
+
+<!-- ══════ RESUMEN EJECUTIVO ══════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-title-group">
+      <div class="section-eyebrow">01 — Visión general</div>
+      <div class="section-title">Resumen Ejecutivo</div>
+      <div class="section-subtitle">Principales indicadores del período — Mayo 2026</div>
+    </div>
+    <span class="section-badge">Mayo 2026</span>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card highlight">
+      <div class="kpi-label">Leads Ingresados</div>
+      <div class="kpi-value">5,779</div>
+      <span class="kpi-delta down">▼ 5.5% vs Abril</span>
+      <div class="kpi-context">Promedio histórico: 5,961</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Leads Calientes</div>
+      <div class="kpi-value">1,439</div>
+      <span class="kpi-delta down">▼ 21.1% vs Abril</span>
+      <div class="kpi-context">24.9% del total · Prom. histórico 28.1%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Score Promedio</div>
+      <div class="kpi-value">7.28 <span class="unit">/10</span></div>
+      <span class="kpi-delta up">▲ 19.3% vs Abril</span>
+      <div class="kpi-context">Máximo histórico del período</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Fuera de Horario</div>
+      <div class="kpi-value">3,305</div>
+      <span class="kpi-delta down">▼ 57.2% del total</span>
+      <div class="kpi-context">Atendidos al instante por Celia</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Score Fuera Horario</div>
+      <div class="kpi-value">7.53 <span class="unit">/10</span></div>
+      <span class="kpi-delta up">▲ 8.3% vs en horario</span>
+      <div class="kpi-context">Score dentro horario: 6.95</div>
+    </div>
+  </div>
+
+  <div class="insights-box">
+    <div class="insights-title">Hallazgos clave del período</div>
+    <div class="insights-list">
+      <div class="insight-item">
+        <div class="insight-icon">↗</div>
+        <span><strong>Score en máximo histórico.</strong> 7.28/10 es el mejor score promedio registrado en el período analizado, superando Abril (+19.3%) y el promedio histórico de 5.96.</span>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">◑</div>
+        <span><strong>57.2% de leads llegan fuera de horario.</strong> Celia garantiza atención inmediata en cada uno de ellos, convirtiendo la demanda nocturna y de fin de semana en oportunidades reales.</span>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">▲</div>
+        <span><strong>Ford lidera en calidad.</strong> Score promedio de 8.63 y 28.7% de leads calientes, el mejor desempeño de intención comercial entre las marcas activas.</span>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">◆</div>
+        <span><strong>Leads de alta intención cada vez más precisos.</strong> El score de los leads con recomendación "Contactar" alcanza 11.59 — una señal robusta de demanda activa.</span>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">→</div>
+        <span><strong>Oportunidad de reactivación.</strong> 1,721 leads iniciaron conversación con Celia pero no la completaron — un segmento con alto potencial de recuperación para los asesores.</span>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">★</div>
+        <span><strong>Correo – Redes, el canal más eficiente.</strong> 69% de leads calientes con 29 registros. Explorar su escalabilidad puede generar impacto comercial significativo.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ ANÁLISIS GENERAL ══════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-title-group">
+      <div class="section-eyebrow">02 — Volumen y clasificación</div>
+      <div class="section-title">Análisis General de Leads</div>
+      <div class="section-subtitle">Distribución y evolución mensual</div>
+    </div>
+  </div>
+
+  <div class="chart-row wide">
+    <div class="chart-wrap">
+      <div class="chart-title">Evolución mensual de leads</div>
+      <div class="chart-container" style="height:200px">
+        <canvas id="chartLeadsHist"></canvas>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Leads Mayo — Calientes vs Fríos</div>
+      <div class="chart-container" style="height:200px">
+        <canvas id="chartDonut"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Mes</th>
+        <th>Total leads</th>
+        <th>Calientes</th>
+        <th>% Calientes</th>
+        <th>Score prom.</th>
+        <th>vs mes ant.</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-bold">Enero</td>
+        <td>6,020</td>
+        <td>2,014</td>
+        <td><div class="pct-bar"><div class="pct-fill-cal" style="width:33.5%"></div></div>33.5%</td>
+        <td>4.82</td>
+        <td class="td-muted">—</td>
+      </tr>
+      <tr>
+        <td class="td-bold">Febrero</td>
+        <td>4,372</td>
+        <td>1,495</td>
+        <td><div class="pct-bar"><div class="pct-fill-cal" style="width:34.2%"></div></div>34.2%</td>
+        <td>5.41</td>
+        <td class="delta-down">▼ 27.4%</td>
+      </tr>
+      <tr>
+        <td class="td-bold">Marzo</td>
+        <td>7,515</td>
+        <td>1,343</td>
+        <td><div class="pct-bar"><div class="pct-fill-cal" style="width:17.9%"></div></div>17.9%</td>
+        <td>6.19</td>
+        <td class="delta-up">▲ 71.9%</td>
+      </tr>
+      <tr>
+        <td class="td-bold">Abril</td>
+        <td>6,119</td>
+        <td>1,824</td>
+        <td><div class="pct-bar"><div class="pct-fill-cal" style="width:29.8%"></div></div>29.8%</td>
+        <td>6.10</td>
+        <td class="delta-down">▼ 18.6%</td>
+      </tr>
+      <tr style="background:var(--orange-light)">
+        <td class="td-bold">Mayo ★</td>
+        <td><strong>5,779</strong></td>
+        <td><strong>1,439</strong></td>
+        <td><div class="pct-bar"><div class="pct-fill-cal" style="width:24.9%"></div></div><strong>24.9%</strong></td>
+        <td><strong>7.28</strong> <span class="delta-up">▲ MÁX</span></td>
+        <td class="delta-down">▼ 5.5%</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="font-size:.75rem;color:var(--gray-400);margin-top:10px;">★ Mes de referencia. El volumen de Mayo está 3.1% por debajo del promedio histórico del período, pero presenta el mejor score registrado hasta la fecha.</p>
+</div>
+
+<!-- ══════ SCORE ══════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-title-group">
+      <div class="section-eyebrow">03 — Calidad del lead</div>
+      <div class="section-title">Análisis de Score</div>
+      <div class="section-subtitle">Distribución, tendencia histórica y correlación con intención comercial</div>
+    </div>
+    <span class="section-badge">Máximo histórico: 7.28</span>
+  </div>
+
+  <div class="score-range-grid">
+    <div class="sr-card alto">
+      <div class="sr-label">Score Alto · 8–10</div>
+      <div class="sr-total">905</div>
+      <div style="font-size:.78rem;color:#065f46;font-weight:600">15.7% del total</div>
+      <div class="sr-pct-cal" style="color:#065f46">55.9% son leads calientes</div>
+    </div>
+    <div class="sr-card medio">
+      <div class="sr-label">Score Medio · 5–7</div>
+      <div class="sr-total">3,682</div>
+      <div style="font-size:.78rem;color:#9a3412;font-weight:600">63.7% del total</div>
+      <div class="sr-pct-cal" style="color:#9a3412">19.0% son leads calientes</div>
+    </div>
+    <div class="sr-card bajo">
+      <div class="sr-label">Score Bajo · 0–4</div>
+      <div class="sr-total">1,189</div>
+      <div style="font-size:.78rem;color:#991b1b;font-weight:600">20.6% del total</div>
+      <div class="sr-pct-cal" style="color:#991b1b">19.5% son leads calientes</div>
+    </div>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-wrap">
+      <div class="chart-title">Tendencia de score promedio mensual</div>
+      <div class="chart-container" style="height:200px">
+        <canvas id="chartScoreHist"></canvas>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Distribución por rango de score — Mayo</div>
+      <div class="chart-container" style="height:200px">
+        <canvas id="chartScoreDist"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Canal / Fuente</th><th>Score prom. Mayo</th><th>vs Promedio histórico</th><th>% Calientes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="td-bold">Meta</td><td>7.49<div class="score-bar"><div class="score-fill" style="width:74.9%"></div></div></td><td class="delta-up">▲ Alta calidad</td><td>23.1%</td></tr>
+      <tr><td class="td-bold">Página Web</td><td>6.08<div class="score-bar"><div class="score-fill" style="width:60.8%"></div></div></td><td class="delta-neutral">— Media</td><td>35.8%</td></tr>
+      <tr><td class="td-bold">Externa</td><td>5.18<div class="score-bar"><div class="score-fill" style="width:51.8%"></div></div></td><td class="delta-down">▼ Oportunidad</td><td>38.7%</td></tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:14px;background:var(--navy-light);border-radius:10px;padding:16px 20px;font-size:.82rem;color:var(--navy);">
+    <strong>Correlación clave:</strong> Los leads con score alto (8–10) tienen una tasa de calientes casi <strong>3 veces superior</strong> a los de score bajo, lo que los convierte en el segmento prioritario para el equipo de asesores. Celia identifica automáticamente estos perfiles y los escala con la recomendación "Contactar" o "Llamar".
+  </div>
+</div>
+
+<!-- ══════ HORARIO ══════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-title-group">
+      <div class="section-eyebrow">04 — Cobertura 24/7</div>
+      <div class="section-title">Horario Laboral vs. Fuera de Horario</div>
+      <div class="section-subtitle">Impacto de Celia como agente de atención continua</div>
+    </div>
+    <span class="section-badge">57.2% fuera de horario</span>
+  </div>
+
+  <div class="horario-grid">
+    <div class="horario-card inside">
+      <div class="kpi-label">Dentro del horario laboral</div>
+      <div class="horario-pct inside">42.8%</div>
+      <div class="horario-desc">2,474 leads — Lun–Vie 8am–6pm / Sáb 8am–1pm</div>
+      <div class="horario-detail">
+        <div class="horario-stat"><strong style="color:var(--navy)">6.95</strong><br><span style="font-size:.7rem;color:var(--gray-600)">Score prom.</span></div>
+        <div class="horario-stat"><strong style="color:var(--navy)">26.0%</strong><br><span style="font-size:.7rem;color:var(--gray-600)">Calientes</span></div>
+      </div>
+    </div>
+    <div class="horario-card outside">
+      <div class="kpi-label">Fuera del horario laboral</div>
+      <div class="horario-pct outside">57.2%</div>
+      <div class="horario-desc">3,305 leads — Noches, fines de semana y madrugadas</div>
+      <div class="horario-detail">
+        <div class="horario-stat"><strong style="color:var(--orange-dark)">7.53</strong><br><span style="font-size:.7rem;color:var(--gray-600)">Score prom.</span></div>
+        <div class="horario-stat"><strong style="color:var(--orange-dark)">24.1%</strong><br><span style="font-size:.7rem;color:var(--gray-600)">Calientes</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-wrap">
+      <div class="chart-title">Evolución fuera de horario (% mensual)</div>
+      <div class="chart-container" style="height:180px">
+        <canvas id="chartFH"></canvas>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Distribución horario laboral Mayo</div>
+      <div class="chart-container" style="height:180px">
+        <canvas id="chartHorarioDonut"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--orange-light);border-radius:10px;padding:16px 20px;font-size:.82rem;color:var(--navy);border:1px solid var(--orange-mid)">
+    <strong>Ventaja competitiva activa:</strong> Las 3,305 interacciones fuera de horario laboral en mayo representan oportunidades comerciales que, sin Celia, habrían quedado sin atención hasta el siguiente día hábil. Con un score promedio de 7.53 — superior al horario laboral — estos leads son altamente valiosos. Celia los perfiló y documentó al instante, permitiendo al equipo continuar el seguimiento con contexto completo.
+  </div>
+</div>
+
+<!-- ══════ RECOMENDACIONES CELIA ══════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-title-group">
+      <div class="section-eyebrow">05 — Inteligencia comercial</div>
+      <div class="section-title">Recomendaciones de Celia</div>
+      <div class="section-subtitle">Distribución, patrones y evolución vs. mes anterior</div>
+    </div>
+  </div>
+
+  <div class="rec-list" style="margin-bottom:24px">
+    <div class="rec-item">
+      <div class="rec-dot" style="background:#ef4444"></div>
+      <div class="rec-name">Cliente no contesta</div>
+      <div class="rec-bar-wrap"><div class="rec-bar" style="width:41.1%;background:#ef4444"></div></div>
+      <div class="rec-stats"><span class="rec-count">2,373</span><span class="rec-pct">41.1%</span><span class="tag frio">Frío</span></div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-dot" style="background:#f97316"></div>
+      <div class="rec-name">Abandona conversación</div>
+      <div class="rec-bar-wrap"><div class="rec-bar" style="width:29.8%;background:#f97316"></div></div>
+      <div class="rec-stats"><span class="rec-count">1,721</span><span class="rec-pct">29.8%</span><span class="tag frio">Frío</span></div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-dot" style="background:#10b981"></div>
+      <div class="rec-name">Contactar</div>
+      <div class="rec-bar-wrap"><div class="rec-bar" style="width:24.3%;background:#10b981"></div></div>
+      <div class="rec-stats"><span class="rec-count">1,405</span><span class="rec-pct">24.3%</span><span class="tag cal">Caliente</span></div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-dot" style="background:#94a3b8"></div>
+      <div class="rec-name">No contactar</div>
+      <div class="rec-bar-wrap"><div class="rec-bar" style="width:3.8%;background:#94a3b8"></div></div>
+      <div class="rec-stats"><span class="rec-count">220</span><span class="rec-pct">3.8%</span><span class="tag frio">Frío</span></div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-dot" style="background:#ff7d08"></div>
+      <div class="rec-name">Llamar</div>
+      <div class="rec-bar-wrap"><div class="rec-bar" style="width:0.6%;background:#ff7d08"></div></div>
+      <div class="rec-stats"><span class="rec-count">32</span><span class="rec-pct">0.6%</span><span class="tag cal">Caliente</span></div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-dot" style="background:#cbd5e1"></div>
+      <div class="rec-name">Bot</div>
+      <div class="rec-bar-wrap"><div class="rec-bar" style="width:0.4%;background:#cbd5e1"></div></div>
+      <div class="rec-stats"><span class="rec-count">24</span><span class="rec-pct">0.4%</span><span class="tag frio">Frío</span></div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Recomendación</th><th>Mayo</th><th>Abril</th><th>Variación</th><th>Score prom.</th><th>Señal</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-bold">Contactar</td>
+        <td>1,405</td>
+        <td>1,802</td>
+        <td class="delta-down">▼ 22.0%</td>
+        <td><strong>11.59</strong></td>
+        <td><span class="tag cal">Alta intención</span></td>
+      </tr>
+      <tr>
+        <td class="td-bold">Llamar</td>
+        <td>32</td>
+        <td>22</td>
+        <td class="delta-up">▲ 45.5%</td>
+        <td><strong>11.38</strong></td>
+        <td><span class="tag cal">Alta intención</span></td>
+      </tr>
+      <tr>
+        <td class="td-bold">Abandona conversación</td>
+        <td>1,721</td>
+        <td>1,101</td>
+        <td class="delta-down">▼ +56.3% vol.</td>
+        <td>7.54</td>
+        <td><span class="tag orange">Reactivar</span></td>
+      </tr>
+      <tr>
+        <td class="td-bold">Cliente no contesta</td>
+        <td>2,373</td>
+        <td>2,390</td>
+        <td class="delta-neutral">→ Estable</td>
+        <td>4.70</td>
+        <td><span class="tag frio">Baja interacción</span></td>
+      </tr>
+      <tr>
+        <td class="td-bold">No contactar</td>
+        <td>220</td>
+        <td>800</td>
+        <td class="delta-up">▼ 72.5% menos</td>
+        <td>5.02</td>
+        <td><span class="tag frio">Sin interés</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:14px;background:var(--navy-light);border-radius:10px;padding:16px 20px;font-size:.82rem;color:var(--navy)">
+    <strong>Oportunidad de reactivación:</strong> Los 1,721 leads clasificados como "Abandona conversación" tienen un score promedio de 7.54 — superior al promedio general — y representan una base con demanda latente. Una estrategia de seguimiento activo por parte de los asesores en estas cuentas puede generar recuperaciones significativas. La caída de 72.5% en "No contactar" es una señal positiva: los leads que llegan en mayo tienen menor tasa de rechazo explícito.
+  </div>
+</div>
+
+
+<!-- ACCIONES COMERCIALES JC -->
+<div class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow">06 — Avance comercial</div>
+      <div class="section-title">Análisis de Acciones Comerciales</div>
+      <div class="section-subtitle">Citas agendadas, aplicaciones a financiamiento y propuestas comerciales — Mayo 2026</div>
+    </div>
+    <span class="section-badge">2,438 acciones totales</span>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi-card highlight">
+      <div class="kpi-label">Propuesta Comercial</div>
+      <div class="kpi-value">2,188</div>
+      <span class="kpi-delta up">▲ 355.8% vs Abril</span>
+      <div class="kpi-context">37.9% del total de leads · Abril: 480 (7.8%)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Financiamiento</div>
+      <div class="kpi-value">165</div>
+      <span class="kpi-delta up">▲ 13.8% vs Abril</span>
+      <div class="kpi-context">2.9% del total · Abril: 145 (2.4%)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Cita Agendada</div>
+      <div class="kpi-value">85</div>
+      <span class="kpi-delta up">▲ 14.9% vs Abril</span>
+      <div class="kpi-context">1.5% del total · Abril: 74 (1.2%)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">% Calientes en Citas</div>
+      <div class="kpi-value">96.5 <span class="unit">%</span></div>
+      <span class="kpi-delta up">▲ Señal fuerte</span>
+      <div class="kpi-context">Prácticamente toda cita es un lead caliente</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">% Calientes en Financ.</div>
+      <div class="kpi-value">89.1 <span class="unit">%</span></div>
+      <span class="kpi-delta up">▲ Alta intención</span>
+      <div class="kpi-context">9 de cada 10 aplicantes son leads calientes</div>
+    </div>
+  </div>
+  <div class="chart-row wide">
+    <div class="chart-wrap">
+      <div class="chart-title">Evolución mensual de acciones</div>
+      <div class="chart-container" style="height:200px"><canvas id="chartAccionesHist"></canvas></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Distribución de acciones — Mayo</div>
+      <div class="chart-container" style="height:200px"><canvas id="chartAccionesDonut"></canvas></div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Marca</th><th>Propuestas</th><th>% sobre marca</th><th>Financiamiento</th><th>% sobre marca</th><th>Citas</th><th>% sobre marca</th></tr></thead>
+    <tbody>
+      <tr><td class="td-bold">MAZDA</td><td>1,294</td><td>46.3%</td><td>82</td><td>2.9%</td><td>27</td><td>1.0%</td></tr>
+      <tr><td class="td-bold">KIA</td><td>511</td><td>26.2%</td><td>51</td><td>2.6%</td><td>37</td><td>1.9%</td></tr>
+      <tr><td class="td-bold">FORD</td><td>369</td><td>40.0%</td><td>25</td><td>2.7%</td><td>18</td><td>2.0%</td></tr>
+      <tr><td class="td-bold">USADOS</td><td>14</td><td>12.4%</td><td>7</td><td>6.2%</td><td>3</td><td>2.7%</td></tr>
+    </tbody>
+  </table>
+  <div style="margin-top:14px;background:var(--orange-light);border-radius:10px;padding:16px 20px;font-size:.82rem;color:var(--navy);border:1px solid var(--orange-mid)">
+    <strong>Hito del mes:</strong> Las propuestas comerciales crecieron un <strong>355.8%</strong> frente a abril, pasando de 480 a 2,188 — el mayor salto registrado en el período. Mazda concentra el 59.1% de todas las propuestas. Las citas y financiamientos también crecen, y su altísima tasa de leads calientes (96.5% y 89.1% respectivamente) confirma que Celia está escalando correctamente los perfiles de mayor intención hacia acciones concretas.
+  </div>
+</div>
+
+<!-- ══════ MARCAS ══════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-title-group">
+      <div class="section-eyebrow">07 — Desempeño por marca</div>
+      <div class="section-title">Análisis por Marcas</div>
+    </div>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-wrap">
+      <div class="chart-title">Volumen de leads por marca — Mayo</div>
+      <div class="chart-container" style="height:200px">
+        <canvas id="chartMarcasVol"></canvas>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Score prom. y % calientes por marca</div>
+      <div class="chart-container" style="height:200px">
+        <canvas id="chartMarcasCal"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Marca</th><th>Leads Mayo</th><th>% del total</th><th>Calientes</th><th>% Calientes</th><th>Score prom.</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-bold">MAZDA</td>
+        <td>2,793</td>
+        <td>48.3%</td>
+        <td>733</td>
+        <td><div class="pct-bar"><div class="pct-fill-cal" style="width:26.2%"></div></div>26.2%</td>
+        <td>6.79<div class="score-bar"><div class="score-fill" style="width:67.9%"></div></div></td>
+      </tr>
+      <tr>
+        <td class="td-bold">KIA</td>
+        <td>1,951</td>
+        <td>33.8%</td>
+        <td>382</td>
+        <td><div class="pct-bar"><div class="pct-fill-cal" style="width:19.6%"></div></div>19.6%</td>
+        <td>7.50<div class="score-bar"><div class="score-fill" style="width:75%"></div></div></td>
+      </tr>
+      <tr>
+        <td class="td-bold">FORD</td>
+        <td>922</td>
+        <td>16.0%</td>
+        <td>265</td>
+        <td><div class="pct-bar"><div class="pct-fill-cal" style="width:28.7%"></div></div>28.7%</td>
+        <td><strong>8.63</strong><div class="score-bar"><div class="score-fill" style="width:86.3%"></div></div></td>
+      </tr>
+      <tr>
+        <td class="td-bold">USADOS</td>
+        <td>113</td>
+        <td>2.0%</td>
+        <td>59</td>
+        <td><div class="pct-bar"><div class="pct-fill-cal" style="width:52.2%"></div></div><strong>52.2%</strong></td>
+        <td>4.68<div class="score-bar"><div class="score-fill" style="width:46.8%"></div></div></td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="font-size:.75rem;color:var(--gray-400);margin-top:10px;">Ford presenta el mayor score promedio (8.63) aunque con menor volumen. Mazda domina en volumen (48.3% del total). Usados, aunque pequeño en volumen, tiene la mayor tasa de leads calientes (52.2%).</p>
+</div>
+
+<!-- ══════ MODELOS ══════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-title-group">
+      <div class="section-eyebrow">08 — Demanda específica</div>
+      <div class="section-title">Análisis por Modelos</div>
+      <div class="section-subtitle">Top 10 modelos con mayor volumen — cobertura 77.5% del catálogo</div>
+    </div>
+  </div>
+
+  <div class="chart-wrap" style="margin-bottom:20px">
+    <div class="chart-title">Top 10 modelos — Volumen y % calientes</div>
+    <div class="chart-container" style="height:240px">
+      <canvas id="chartModelos"></canvas>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Modelo</th><th>Marca</th><th>Leads</th><th>Calientes</th><th>Score prom.</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-bold">Sportage</td>
+        <td><span class="marca-pill kia">KIA</span></td>
+        <td>526</td>
+        <td>16.5%</td>
+        <td>8.20<div class="score-bar"><div class="score-fill" style="width:82%"></div></div></td>
+      </tr>
+      <tr>
+        <td class="td-bold">CX30</td>
+        <td><span class="marca-pill mazda">MAZDA</span></td>
+        <td>472</td>
+        <td>39.6%</td>
+        <td><strong>10.75</strong><div class="score-bar"><div class="score-fill" style="width:100%"></div></div></td>
+      </tr>
+      <tr>
+        <td class="td-bold">Territory</td>
+        <td><span class="marca-pill ford">FORD</span></td>
+        <td>464</td>
+        <td>32.1%</td>
+        <td>10.07<div class="score-bar"><div class="score-fill" style="width:100%"></div></div></td>
+      </tr>
+      <tr>
+        <td class="td-bold">2 Sedán</td>
+        <td><span class="marca-pill mazda">MAZDA</span></td>
+        <td>419</td>
+        <td>18.1%</td>
+        <td>7.21<div class="score-bar"><div class="score-fill" style="width:72.1%"></div></div></td>
+      </tr>
+      <tr>
+        <td class="td-bold">New Stonic</td>
+        <td><span class="marca-pill kia">KIA</span></td>
+        <td>371</td>
+        <td>26.7%</td>
+        <td>9.85<div class="score-bar"><div class="score-fill" style="width:98.5%"></div></div></td>
+      </tr>
+      <tr>
+        <td class="td-bold">CX50</td>
+        <td><span class="marca-pill mazda">MAZDA</span></td>
+        <td>310</td>
+        <td>23.2%</td>
+        <td>7.82<div class="score-bar"><div class="score-fill" style="width:78.2%"></div></div></td>
+      </tr>
+      <tr>
+        <td class="td-bold">2 Sport</td>
+        <td><span class="marca-pill mazda">MAZDA</span></td>
+        <td>240</td>
+        <td>40.0%</td>
+        <td><strong>11.07</strong><div class="score-bar"><div class="score-fill" style="width:100%"></div></div></td>
+      </tr>
+      <tr>
+        <td class="td-bold">Mazda 3</td>
+        <td><span class="marca-pill mazda">MAZDA</span></td>
+        <td>238</td>
+        <td>30.3%</td>
+        <td>9.51<div class="score-bar"><div class="score-fill" style="width:95.1%"></div></div></td>
+      </tr>
+      <tr>
+        <td class="td-bold">K3 Sedán</td>
+        <td><span class="marca-pill kia">KIA</span></td>
+        <td>200</td>
+        <td>17.5%</td>
+        <td>8.04<div class="score-bar"><div class="score-fill" style="width:80.4%"></div></div></td>
+      </tr>
+      <tr>
+        <td class="td-bold">CX5</td>
+        <td><span class="marca-pill mazda">MAZDA</span></td>
+        <td>145</td>
+        <td>38.6%</td>
+        <td>10.43<div class="score-bar"><div class="score-fill" style="width:100%"></div></div></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════ FUENTES ══════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-title-group">
+      <div class="section-eyebrow">09 — Canales de captación</div>
+      <div class="section-title">Análisis por Fuentes y Subfuentes</div>
+    </div>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-wrap">
+      <div class="chart-title">Volumen por fuente — Histórico mensual</div>
+      <div class="chart-container" style="height:200px">
+        <canvas id="chartFuentesHist"></canvas>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Subfuentes — Volumen y % calientes</div>
+      <div class="chart-container" style="height:200px">
+        <canvas id="chartSubfuentes"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Subfuente</th><th>Leads Mayo</th><th>% Calientes</th><th>Score prom.</th><th>Valoración</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-bold">Correo – Redes</td>
+        <td>29</td>
+        <td><strong>69.0%</strong></td>
+        <td>5.28</td>
+        <td><span class="tag cal">Mayor eficiencia</span></td>
+      </tr>
+      <tr>
+        <td class="td-bold">Contact Center</td>
+        <td>36</td>
+        <td>41.7%</td>
+        <td><strong>8.42</strong></td>
+        <td><span class="tag cal">Mayor calidad</span></td>
+      </tr>
+      <tr>
+        <td class="td-bold">WhatsApp</td>
+        <td>695</td>
+        <td>35.8%</td>
+        <td>6.08</td>
+        <td><span class="tag orange">Alta conversación</span></td>
+      </tr>
+      <tr>
+        <td class="td-bold">Facebook</td>
+        <td>1,580</td>
+        <td>26.1%</td>
+        <td>7.48</td>
+        <td><span class="tag orange">Buen volumen</span></td>
+      </tr>
+      <tr>
+        <td class="td-bold">Instagram</td>
+        <td>1,819</td>
+        <td>25.3%</td>
+        <td>7.24</td>
+        <td><span class="tag orange">Mayor volumen</span></td>
+      </tr>
+      <tr>
+        <td class="td-bold">Meta (directo)</td>
+        <td>1,579</td>
+        <td>17.5%</td>
+        <td>7.81</td>
+        <td><span class="tag orange">Score alto</span></td>
+      </tr>
+      <tr>
+        <td class="td-bold">Tu 360 Bancolombia</td>
+        <td>34</td>
+        <td>8.8%</td>
+        <td>1.32</td>
+        <td><span class="tag frio">Oportunidad de mejora</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="font-size:.75rem;color:var(--gray-400);margin-top:10px;">Meta (incluyendo Instagram y Facebook) concentra el 86.1% del volumen total. La Página Web y canales externos muestran porcentajes de calientes superiores, pero con menor escala. Tu 360 Bancolombia presenta la mayor oportunidad de mejora en calidad de lead.</p>
+</div>
+
+<!-- ══════ TEMPORAL ══════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-title-group">
+      <div class="section-eyebrow">10 — Patrones de demanda</div>
+      <div class="section-title">Análisis Temporal</div>
+      <div class="section-subtitle">Distribución por hora, día y heatmap de actividad — Mayo 2026</div>
+    </div>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-wrap">
+      <div class="chart-title">Leads por hora del día — Mayo</div>
+      <div class="chart-container" style="height:200px">
+        <canvas id="chartHourly"></canvas>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Leads por día de la semana — Mayo</div>
+      <div class="chart-container" style="height:200px">
+        <canvas id="chartWeekly"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEATMAP -->
+  <div class="chart-wrap" style="margin-top:0">
+    <div class="chart-title">Heatmap de actividad — Hora × Día de la semana (Mayo)</div>
+    <div class="heatmap-wrap">
+      <div class="heatmap" id="heatmapGrid"></div>
+    </div>
+    <div class="hm-legend">
+      <span style="color:var(--gray-400);font-size:.7rem">Menor actividad</span>
+      <div class="hm-legend-bar"></div>
+      <span style="color:var(--gray-400);font-size:.7rem">Mayor actividad</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+    <div style="background:var(--orange-light);border-radius:10px;padding:16px;border:1px solid var(--orange-mid)">
+      <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--orange-dark);margin-bottom:6px">Hora pico</div>
+      <div style="font-size:1.8rem;font-weight:900;color:var(--navy)">20:00 h</div>
+      <div style="font-size:.78rem;color:var(--gray-600)">409 leads — fuera de horario laboral. Celia activa.</div>
+    </div>
+    <div style="background:var(--gray-50);border-radius:10px;padding:16px;border:1px solid var(--gray-200)">
+      <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-400);margin-bottom:6px">Día más activo</div>
+      <div style="font-size:1.8rem;font-weight:900;color:var(--navy)">Viernes</div>
+      <div style="font-size:.78rem;color:var(--gray-600)">1,076 leads — 18.6% del total semanal</div>
+    </div>
+    <div style="background:var(--navy-light);border-radius:10px;padding:16px;border:1px solid var(--gray-200)">
+      <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-400);margin-bottom:6px">Mejor score nocturno</div>
+      <div style="font-size:1.8rem;font-weight:900;color:var(--navy)">21:00 h</div>
+      <div style="font-size:.78rem;color:var(--gray-600)">Score prom. 8.08 — noche de alta intención</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ ESTADOS ══════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-title-group">
+      <div class="section-eyebrow">11 — Estado del lead</div>
+      <div class="section-title">Análisis de Estados</div>
+    </div>
+  </div>
+  <div class="chart-row">
+    <div style="display:flex;flex-direction:column;gap:12px;flex:1">
+      <div style="background:var(--gray-50);border-radius:12px;padding:20px;border:1px solid var(--gray-200)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <span style="font-size:.9rem;font-weight:700;color:var(--navy)">Sincronizado</span>
+          <span class="tag cal">94.4%</span>
+        </div>
+        <div style="font-size:2rem;font-weight:900;color:var(--navy)">5,453</div>
+        <div style="height:8px;background:var(--gray-200);border-radius:4px;margin-top:12px;overflow:hidden">
+          <div style="width:94.4%;height:100%;background:#10b981;border-radius:4px"></div>
+        </div>
+        <div style="font-size:.75rem;color:var(--gray-400);margin-top:6px">Leads correctamente integrados a la plataforma</div>
+      </div>
+      <div style="background:var(--gray-50);border-radius:12px;padding:20px;border:1px solid var(--gray-200)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <span style="font-size:.9rem;font-weight:700;color:var(--navy)">No sincronizado</span>
+          <span class="tag orange">5.6%</span>
+        </div>
+        <div style="font-size:2rem;font-weight:900;color:var(--navy)">326</div>
+        <div style="height:8px;background:var(--gray-200);border-radius:4px;margin-top:12px;overflow:hidden">
+          <div style="width:5.6%;height:100%;background:var(--orange);border-radius:4px"></div>
+        </div>
+        <div style="font-size:.75rem;color:var(--gray-400);margin-top:6px">Pendientes de sincronización — oportunidad de revisión</div>
+      </div>
+    </div>
+    <div class="chart-wrap" style="flex:2">
+      <div class="chart-title">Contexto: leads no sincronizados representan una oportunidad de mejora en el pipeline de integración. El 94.4% de sincronización general es una base sólida de operación.</div>
+      <div style="margin-top:20px;font-size:.82rem;color:var(--gray-600);line-height:1.7">
+        La tasa de sincronización del <strong>94.4%</strong> garantiza que la gran mayoría de los leads capturados por Celia quedan registrados y disponibles para el equipo de asesores en tiempo real. Los 326 leads en estado "No sincronizado" representan una oportunidad de revisión técnica para asegurar cobertura total del pipeline comercial.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ INSIGHTS ESTRATÉGICOS ══════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-title-group">
+      <div class="section-eyebrow">12 — Recomendaciones</div>
+      <div class="section-title">Insights Estratégicos</div>
+      <div class="section-subtitle">Acciones prioritarias para potenciar el desempeño comercial</div>
+    </div>
+  </div>
+
+  <div class="insights-final-grid">
+    <div class="insight-card">
+      <div class="insight-card-icon">⏰</div>
+      <div class="insight-card-title">Priorizar seguimiento nocturno y de fin de semana</div>
+      <div class="insight-card-text">El 57.2% de los leads llegan fuera de horario, con un score promedio de 7.53 — superior al horario laboral. Asegurar que los asesores den seguimiento prioritario a estos perfiles al inicio de la jornada maximizará el retorno de la cobertura 24/7 de Celia.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-card-icon">🔁</div>
+      <div class="insight-card-title">Activar campaña de reactivación: "Abandona conversación"</div>
+      <div class="insight-card-text">1,721 leads con score promedio de 7.54 iniciaron interacción con Celia pero no la completaron. Una campaña de reactivación con mensaje personalizado puede recuperar una porción significativa de esta demanda latente, que ya mostró intención inicial.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-card-icon">🎯</div>
+      <div class="insight-card-title">Enfocar recursos en CX30, 2 Sport y Territory</div>
+      <div class="insight-card-text">CX30 (score 10.75), 2 Sport (score 11.07) y Territory (score 10.07) presentan los mejores indicadores combinados de volumen, calidad e intención comercial. Son los modelos con mayor potencial de cierre en el ciclo actual.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-card-icon">📣</div>
+      <div class="insight-card-title">Escalar canal Correo – Redes y Contact Center</div>
+      <div class="insight-card-text">Con 69% y 41.7% de calientes respectivamente, estos canales muestran la mayor eficiencia en calidad de lead. Invertir en escalar su volumen puede mejorar significativamente la proporción general de leads calientes.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-card-icon">📊</div>
+      <div class="insight-card-title">Capitalizar el score máximo histórico</div>
+      <div class="insight-card-text">El score de 7.28 es el mejor registrado en el período. Esta mejora sostenida (4.82 en enero → 7.28 en mayo) sugiere que la segmentación de campañas y el perfil de Celia están mejorando progresivamente. Mantener esta trayectoria es una prioridad.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-card-icon">🚀</div>
+      <div class="insight-card-title">Explorar campañas específicas para Ford y Usados</div>
+      <div class="insight-card-text">Ford lidera en score (8.63) y Usados en % de calientes (52.2%). Ambos segmentos tienen alta intención comercial relativa con menor volumen. Campañas dirigidas a estos públicos pueden generar rentabilidad superior por lead.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-card-icon">⚡</div>
+      <div class="insight-card-title">Ventana de contacto: viernes y noches</div>
+      <div class="insight-card-text">Viernes es el día con mayor volumen (1,076 leads) y las 20:00–21:00 h son la franja nocturna de mayor actividad y mejor score. Planificar recordatorios de seguimiento para el inicio del lunes con leads del fin de semana puede incrementar la tasa de contacto efectivo.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-card-icon">🔧</div>
+      <div class="insight-card-title">Revisar pipeline de Tu 360 Bancolombia</div>
+      <div class="insight-card-text">Con un score promedio de 1.32 y solo 8.8% de calientes, este canal muestra la mayor brecha de calidad. Una revisión del tipo de lead que genera y el ajuste de la segmentación puede mejorar su desempeño o redirigir el presupuesto hacia canales más eficientes.</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="report-footer">
+  Informe generado por <strong>Mekan</strong> · Mayo 2026 · Datos basados en 5,779 leads registrados en el período<br>
+  Análisis comparativo: Enero–Mayo 2026 · Agente de inteligencia artificial: <strong>Celia</strong>
+</div>
+
+</div><!-- end .page -->
+
+<script>
+// ══════ DATA ══════
+const ORANGE = '#ff7d08';
+const NAVY = '#1f2f45';
+const GRAY = '#e2e8f0';
+const GREEN = '#10b981';
+const RED = '#ef4444';
+
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.color = '#475569';
+Chart.defaults.plugins.legend.labels.boxWidth = 12;
+Chart.defaults.plugins.legend.labels.padding = 16;
+
+// ── Historical leads
+new Chart(document.getElementById('chartLeadsHist'), {
+  type: 'bar',
+  data: {
+    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May'],
+    datasets: [{
+      label: 'Total Leads',
+      data: [6020, 4372, 7515, 6119, 5779],
+      backgroundColor: [GRAY,GRAY,GRAY,GRAY,ORANGE],
+      borderRadius: 6,
+      order: 2
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
+      x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+// ── Donut calientes/frios
+new Chart(document.getElementById('chartDonut'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Calientes', 'Fríos'],
+    datasets: [{ data: [1439, 4340], backgroundColor: [ORANGE, NAVY], borderWidth: 0, hoverOffset: 4 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '70%',
+    plugins: {
+      legend: { position: 'bottom' },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw.toLocaleString()} (${(ctx.raw/5779*100).toFixed(1)}%)` } }
+    }
+  }
+});
+
+// ── Score historical
+new Chart(document.getElementById('chartScoreHist'), {
+  type: 'line',
+  data: {
+    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May'],
+    datasets: [{
+      label: 'Score promedio',
+      data: [4.82, 5.41, 6.19, 6.10, 7.28],
+      borderColor: ORANGE, backgroundColor: 'rgba(255,125,8,0.1)',
+      borderWidth: 2.5, pointBackgroundColor: ORANGE, pointRadius: 5,
+      fill: true, tension: 0.3
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { min: 3, max: 9, grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
+      x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+// ── Score distribution
+new Chart(document.getElementById('chartScoreDist'), {
+  type: 'bar',
+  data: {
+    labels: ['Bajo (0–4)', 'Medio (5–7)', 'Alto (8–10)'],
+    datasets: [{
+      label: 'Leads',
+      data: [1189, 3682, 905],
+      backgroundColor: [RED, ORANGE, GREEN],
+      borderRadius: 6
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
+      x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+// ── FH historical
+new Chart(document.getElementById('chartFH'), {
+  type: 'line',
+  data: {
+    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May'],
+    datasets: [{
+      label: '% Fuera de horario',
+      data: [53.1, 46.2, 37.2, 54.0, 57.2],
+      borderColor: ORANGE, backgroundColor: 'rgba(255,125,8,0.1)',
+      borderWidth: 2.5, pointBackgroundColor: ORANGE, pointRadius: 5,
+      fill: true, tension: 0.3
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { min: 20, max: 70, grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 }, callback: v => v + '%' } },
+      x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+// ── Horario donut
+new Chart(document.getElementById('chartHorarioDonut'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Fuera horario', 'Dentro horario'],
+    datasets: [{ data: [3305, 2474], backgroundColor: [ORANGE, NAVY], borderWidth: 0 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '65%',
+    plugins: {
+      legend: { position: 'bottom' },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw.toLocaleString()} (${(ctx.raw/5779*100).toFixed(1)}%)` } }
+    }
+  }
+});
+
+
+// Acciones JC
+new Chart(document.getElementById('chartAccionesHist'),{
+  type:'bar',
+  data:{labels:['Ene','Feb','Mar','Abr','May'],datasets:[
+    {label:'Propuesta',data:[140,161,240,480,2188],backgroundColor:'#ff7d08',borderRadius:4},
+    {label:'Financiamiento',data:[208,121,103,145,165],backgroundColor:'#1f2f45',borderRadius:4},
+    {label:'Cita',data:[93,76,46,74,85],backgroundColor:'#94a3b8',borderRadius:4}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#f1f5f9'},ticks:{font:{size:10}}}}}
+});
+new Chart(document.getElementById('chartAccionesDonut'),{
+  type:'doughnut',
+  data:{labels:['Propuesta','Financiamiento','Cita'],datasets:[{data:[2188,165,85],backgroundColor:['#ff7d08','#1f2f45','#94a3b8'],borderWidth:0}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom'}}}
+});
+
+// ── Marcas volumen
+new Chart(document.getElementById('chartMarcasVol'), {
+  type: 'bar',
+  data: {
+    labels: ['MAZDA', 'KIA', 'FORD', 'USADOS'],
+    datasets: [{
+      label: 'Leads',
+      data: [2793, 1951, 922, 113],
+      backgroundColor: ['#1e40af','#166534','#92400e','#475569'],
+      borderRadius: 6
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
+      x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+// ── Marcas score+calientes
+new Chart(document.getElementById('chartMarcasCal'), {
+  type: 'bar',
+  data: {
+    labels: ['MAZDA', 'KIA', 'FORD', 'USADOS'],
+    datasets: [
+      { label: 'Score prom.', data: [6.79, 7.50, 8.63, 4.68], backgroundColor: ORANGE, borderRadius: 4, yAxisID: 'y' },
+      { label: '% Calientes', data: [26.2, 19.6, 28.7, 52.2], backgroundColor: 'rgba(16,185,129,0.7)', borderRadius: 4, yAxisID: 'y2' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, position: 'bottom' } },
+    scales: {
+      y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } }, max: 12 },
+      y2: { position: 'right', grid: { display: false }, ticks: { font: { size: 11 }, callback: v => v + '%' }, max: 70 },
+      x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+// ── Fuentes históricas
+new Chart(document.getElementById('chartFuentesHist'), {
+  type: 'bar',
+  data: {
+    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May'],
+    datasets: [
+      { label: 'Meta', data: [4935, 3546, 5296, 5363, 4978], backgroundColor: '#1e40af', borderRadius: 3 },
+      { label: 'Página Web', data: [780, 585, 579, 587, 695], backgroundColor: ORANGE, borderRadius: 3 },
+      { label: 'Externa', data: [305, 241, 1640, 169, 106], backgroundColor: '#94a3b8', borderRadius: 3 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom' } },
+    scales: {
+      x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 } } },
+      y: { stacked: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+// ── Subfuentes
+new Chart(document.getElementById('chartSubfuentes'), {
+  type: 'bar',
+  data: {
+    labels: ['Instagram', 'Facebook', 'Meta', 'WhatsApp', 'Contact\nCenter', 'Correo-\nRedes'],
+    datasets: [
+      { label: 'Volumen', data: [1819, 1580, 1579, 695, 36, 29], backgroundColor: NAVY, borderRadius: 4, yAxisID: 'y' },
+      { label: '% Calientes', data: [25.3, 26.1, 17.5, 35.8, 41.7, 69.0], backgroundColor: ORANGE, borderRadius: 4, yAxisID: 'y2' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, position: 'bottom' } },
+    scales: {
+      y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
+      y2: { position: 'right', grid: { display: false }, ticks: { font: { size: 10 }, callback: v => v + '%' } },
+      x: { grid: { display: false }, ticks: { font: { size: 9 } } }
+    }
+  }
+});
+
+// ── Hourly
+const hourlyData = [106,56,25,27,26,58,147,196,266,267,376,394,304,283,306,311,329,372,344,355,409,346,289,187];
+const hourlyColors = hourlyData.map((v, i) => (i < 8 || i >= 18 || i === 0) ? 'rgba(255,125,8,0.75)' : 'rgba(31,47,69,0.75)');
+new Chart(document.getElementById('chartHourly'), {
+  type: 'bar',
+  data: {
+    labels: Array.from({length:24}, (_,i) => i + 'h'),
+    datasets: [{
+      label: 'Leads',
+      data: hourlyData,
+      backgroundColor: hourlyColors,
+      borderRadius: 3
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 9 } } },
+      x: { grid: { display: false }, ticks: { font: { size: 8 } } }
+    }
+  }
+});
+
+// ── Weekly
+new Chart(document.getElementById('chartWeekly'), {
+  type: 'bar',
+  data: {
+    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+    datasets: [{
+      label: 'Leads',
+      data: [815, 631, 640, 705, 1076, 980, 932],
+      backgroundColor: ['rgba(31,47,69,.7)','rgba(31,47,69,.7)','rgba(31,47,69,.7)','rgba(31,47,69,.7)',ORANGE,'rgba(255,125,8,.6)','rgba(255,125,8,.5)'],
+      borderRadius: 6
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
+      x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+// ── Modelos
+new Chart(document.getElementById('chartModelos'), {
+  type: 'bar',
+  data: {
+    labels: ['Sportage', 'CX30', 'Territory', '2 Sedán', 'New Stonic', 'CX50', '2 Sport', 'Mazda 3', 'K3 Sedán', 'CX5'],
+    datasets: [
+      { label: 'Leads', data: [526,472,464,419,371,310,240,238,200,145], backgroundColor: NAVY, borderRadius: 4, yAxisID: 'y' },
+      { label: '% Calientes', data: [16.5,39.6,32.1,18.1,26.7,23.2,40.0,30.3,17.5,38.6], backgroundColor: ORANGE, borderRadius: 4, yAxisID: 'y2' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, position: 'bottom' } },
+    scales: {
+      y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
+      y2: { position: 'right', grid: { display: false }, ticks: { font: { size: 10 }, callback: v => v + '%' }, max: 60 },
+      x: { grid: { display: false }, ticks: { font: { size: 9 } } }
+    }
+  }
+});
+
+// ══════ HEATMAP ══════
+const heatmapData = [[19,5,4,1,5,7,15,32,34,31,50,50,42,51,55,51,54,85,48,41,42,39,35,19],[18,6,4,2,4,10,15,27,29,24,42,36,46,31,33,33,34,37,44,39,28,36,32,21],[9,5,2,2,3,5,13,23,30,32,43,42,37,30,35,36,35,37,24,34,59,48,35,21],[9,9,2,5,4,7,13,25,36,32,22,38,32,36,35,30,50,45,39,45,64,51,45,31],[14,9,4,7,5,15,30,25,41,42,119,137,55,43,47,41,45,52,70,60,69,53,53,40],[23,12,3,5,1,3,33,30,54,69,59,56,53,48,50,56,42,59,50,67,77,54,46,30],[14,10,6,5,4,11,28,34,42,37,41,35,39,44,51,64,69,57,69,69,70,65,43,25]];
+const days = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+const maxVal = Math.max(...heatmapData.flat());
+
+function heatColor(v) {
+  const t = v / maxVal;
+  if (t < 0.15) return `rgba(238,241,245,0.8)`;
+  if (t < 0.35) return `rgba(255,200,140,${0.4+t*0.6})`;
+  if (t < 0.65) return `rgba(255,140,30,${0.5+t*0.5})`;
+  return `rgba(255,90,0,${0.7+t*0.3})`;
+}
+
+const grid = document.getElementById('heatmapGrid');
+// Header row: empty + hours
+const emptyEl = document.createElement('div');
+emptyEl.className = 'hm-label';
+grid.appendChild(emptyEl);
+for (let h = 0; h < 24; h++) {
+  const el = document.createElement('div');
+  el.className = 'hm-hour-label';
+  el.textContent = h;
+  grid.appendChild(el);
+}
+// Data rows
+heatmapData.forEach((row, d) => {
+  const label = document.createElement('div');
+  label.className = 'hm-label';
+  label.textContent = days[d];
+  grid.appendChild(label);
+  row.forEach(v => {
+    const cell = document.createElement('div');
+    cell.className = 'hm-cell';
+    cell.style.background = heatColor(v);
+    cell.style.color = v/maxVal > 0.4 ? '#fff' : 'rgba(31,47,69,0.5)';
+    cell.title = `${days[d]} ${row.indexOf(v)}:00 — ${v} leads`;
+    if (v > 10) cell.textContent = v;
+    grid.appendChild(cell);
+  });
+});
+</script>
+</body>
+</html>
